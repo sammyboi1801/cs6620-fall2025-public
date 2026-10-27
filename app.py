@@ -1,10 +1,10 @@
-# In your Flask app file, update a comment or add a version identifier:
-# Version: 1.0.1
-# Built with GitHub Actions
+# Version: 2.0 - Automated Deployment
+# Built with GitHub Actions, deployed to EC2 via AWS SSM
 
 import os
 import re
 import csv
+from datetime import datetime, timezone
 from io import StringIO
 from flask import Flask, render_template, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
@@ -13,6 +13,13 @@ import tempfile
 
 app = Flask(__name__)
 CORS(app)
+
+# Deployment info shown on the home page and /health
+APP_VERSION = "2.0"
+DEPLOYMENT_METHOD = "automated"
+BUILD_DATE = os.environ.get("BUILD_DATE", "unknown")  # set at build time by GitHub Actions
+GIT_SHA = os.environ.get("GIT_SHA", "unknown")
+STARTED_AT = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 # Global variables for playlist management
 current_directory = None
@@ -148,7 +155,28 @@ def index():
     """
     Renders the main HTML page for the client-side audio player.
     """
-    return render_template('index.html') 
+    return render_template(
+        'index.html',
+        version=APP_VERSION,
+        build_date=BUILD_DATE,
+        git_sha=GIT_SHA[:7],
+        started_at=STARTED_AT,
+    )
+
+@app.route('/health')
+def health():
+    """
+    Health check with version and deployment details.
+    """
+    return jsonify({
+        'status': 'healthy',
+        'version': APP_VERSION,
+        'deployment_method': DEPLOYMENT_METHOD,
+        'build_date': BUILD_DATE,
+        'commit': GIT_SHA,
+        'started_at': STARTED_AT,
+        'timestamp': datetime.now(timezone.utc).isoformat()
+    })
 
 @app.route('/select_directory', methods=['POST'])
 def select_directory():

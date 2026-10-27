@@ -163,6 +163,15 @@
 </head>
 <body>
     <div class="container">
+        <div class="section-box deploy-banner">
+            <h2>Hello from Automated CI/CD Pipeline!</h2>
+            <p><strong>Version:</strong> {{ version }} - Automated Deployment</p>
+            <p><strong>Deployed via:</strong> GitHub Actions + AWS SSM</p>
+            <p><strong>Build Date:</strong> {{ build_date }} (commit {{ git_sha }})</p>
+            <p><strong>Container Started:</strong> {{ started_at }}</p>
+            <p><strong>Assignment:</strong> Automated EC2 Deployment</p>
+        </div>
+
         <h1>Python Network Audio Player</h1>
 
         <div class="section-box log-upload-section">
